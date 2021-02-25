@@ -3,6 +3,12 @@ const Trie = function() {
     this.root = new Node()
 };
 
+const Node = function(val = ''){
+    this.val = val;
+    this.keys = {};
+    this.end = false;  
+};
+
 Trie.prototype.insert = function(word, node = this.root) {
     if(!word.length){
         node.end = true;
@@ -49,11 +55,26 @@ Trie.prototype.startsWith = function(prefix) {
     return true
 };
 
-const Node = function(val = ''){
-    this.val = val;
-    this.keys = {};
-    this.end = false;  
-}
+Trie.prototype.wordlist = function(){
+    let words = [];
+    let innerSearch = function(node, string){
+        let keysArr = Object.keys(node.keys);
+        if(keysArr.length){
+            for(const letter of keysArr){
+                innerSearch(node.keys[letter], string.concat(letter));
+            }
+            if(node.end){
+                words.push(string)
+            }
+        } else {
+            if(string.length && node.end){
+                words.push(string);
+            }
+        }
+    }
+    innerSearch(this.root, "");
+    return words
+};
 
  
 const trie = new Trie();
