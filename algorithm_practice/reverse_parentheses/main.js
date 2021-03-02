@@ -1,28 +1,52 @@
-function reverseInParentheses(inputString) {  
-    for(let i = 0;i < inputString.length; i++){
-        if(inputString[i] === '('){
-            let firstPointer = i;
-            for(let j = i + 1; j < inputString.length; j++){
-                if(inputString[j] === '('){
-                    firstPointer = j;
-                }
-                if(inputString[j] === ')'){
-                    let str = inputString.slice(firstPointer, j + 1);
-                    let revstr = str.split('').reverse();
-                    revstr.pop();
-                    revstr.shift();
-                    revstr = revstr.join('');
-                    console.log(revstr)
-                    inputString = inputString.replace(str, revstr);
-                    i = 0;               
-                    break;   
-                }
+// function reverseInParentheses(inputString) {  
+//     for(let i = 0;i < inputString.length; i++){
+//         if(inputString[i] === '('){
+//             let firstPointer = i;
+//             for(let j = i + 1; j < inputString.length; j++){
+//                 if(inputString[j] === '('){
+//                     firstPointer = j;
+//                 }
+//                 if(inputString[j] === ')'){
+//                     let str = inputString.slice(firstPointer, j + 1);
+//                     let revstr = str.split('').reverse();
+//                     revstr.pop();
+//                     revstr.shift();
+//                     revstr = revstr.join('');
+//                     console.log(revstr)
+//                     inputString = inputString.replace(str, revstr);
+//                     i = 0;               
+//                     break;   
+//                 }
+//             }
+//         }
+//     }
+//     return inputString;
+// }
+function reverseInParentheses(inputString) {
+    let currentParentheses = true;
+    
+    while(currentParentheses){
+        currentParentheses = false;
+        let frontParentheses = 0;
+        for(let i = 0; i < inputString.length; i++){
+            if(inputString[i] === '('){
+                currentParentheses = true;
+                frontParentheses = i;
+            } else if (inputString[i] === ')'){
+                let tempString = inputString.slice(frontParentheses, i + 1);
+                let newString = tempString.slice(0).split('');
+                newString.pop();
+                newString = newString.reverse();
+                newString.pop();
+                newString = newString.join('');
+                inputString = inputString.replace(tempString, newString);
+                break;
             }
         }
     }
-    return inputString;
+    
+    return inputString
 }
-
 
 let string1 = reverseInParentheses("(bar)");
 let compString1 = "rab";
@@ -45,37 +69,3 @@ console.log(string6,compString6)
 let string7 = reverseInParentheses("(abc)d(efg)");
 let compString7 = "cbadgfe";
 console.log(string7 === compString7)
-
-
-function someFunction(input){
-
-    let arr = [];
-    for(let value of Object.values(input)){
-        let innerArr = [value.name, ...value.shoes.map(innerVal => (`${innerVal.name} ${innerVal.price}`))]
-        arr.push(innerArr.join(', '))
-    }
-    return arr.join('\n')
-
-}
-
-let currentInventory = [
-    {
-      name: 'Brunello Cucinelli',
-      shoes: [
-        {name: 'tasselled black low-top lace-up', price: 1000},
-        {name: 'tasselled green low-top lace-up', price: 1100},
-        {name: 'plain beige suede moccasin', price: 950},
-        {name: 'plain olive suede moccasin', price: 1050}
-      ]
-    },
-    {
-      name: 'Gucci',
-      shoes: [
-        {name: 'red leather laced sneakers', price: 800},
-        {name: 'black leather laced sneakers', price: 900}
-      ]
-    }
-  ];
-
-let x = someFunction(currentInventory)
-// console.log(x)
