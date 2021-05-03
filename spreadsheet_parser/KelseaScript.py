@@ -1,45 +1,19 @@
-from openpyxl import load_workbook
-from tkinter import Tk
-from tkinter.filedialog import askopenfilename
 import helpers
 
 def main():
 
-    Tk().withdraw()
-    input_spreadsheet_path = askopenfilename()
-    output_spreadsheet_path = askopenfilename()
+    worksheets = helpers.Worksheets()
 
-    # Checks if spreadsheet paths are valid
-    helpers.error_check([
-        (input_spreadsheet_path,"Input spreadsheet wasn't selected!", lambda x: x == ""),
-        (output_spreadsheet_path,"Output spreadsheet wasn't selected!", lambda x: x == "")
-    ])
-    
-    # #For testing comment out
-    # input_spreadsheet_path = "./xlsx_files/copy/input.xlsx"
-    # output_spreadsheet_path = "./xlsx_files/copy/output_empty.xlsx"
-    
-    
-    wb_input = load_workbook(input_spreadsheet_path)
-    input_spreadsheet = wb_input.active
-    wb_output = load_workbook(output_spreadsheet_path)
-    output_spreadsheet = wb_output.active
-
-    #Checks if spreadsheets are valid
-    helpers.error_check([
-        (input_spreadsheet, "Input spreadsheet couldn't be read!", lambda x: not x),
-        (output_spreadsheet, "Output spreadsheet couldn't be read!", lambda x: not x)
-    ])
     #input spreadsheet columns
-    store_name_column = helpers.term_index_from_tuple(input_spreadsheet['1'], "Store Name")
-    trans_type_column = helpers.term_index_from_tuple(input_spreadsheet['1'], "Trans Type")
-    total_payment_column = helpers.term_index_from_tuple(input_spreadsheet['1'], "Total")
+    store_name_column = helpers.term_index_from_tuple(worksheets.input_spreadsheet['1'], "Store Name")
+    trans_type_column = helpers.term_index_from_tuple(worksheets.input_spreadsheet['1'], "Trans Type")
+    total_payment_column = helpers.term_index_from_tuple(worksheets.input_spreadsheet['1'], "Total")
     
     #output spreadsheet columns
-    store_number_column = helpers.term_index_from_tuple(output_spreadsheet['1'], "Store Number")
-    cash_column = helpers.term_index_from_tuple(output_spreadsheet['1'], "Cash")
-    credit_column = helpers.term_index_from_tuple(output_spreadsheet['1'], "Credit")
-    cashless_column = helpers.term_index_from_tuple(output_spreadsheet['1'], "Cashless (mobile)")
+    store_number_column = helpers.term_index_from_tuple(worksheets.output_spreadsheet['1'], "Store Number")
+    cash_column = helpers.term_index_from_tuple(worksheets.output_spreadsheet['1'], "Cash")
+    credit_column = helpers.term_index_from_tuple(worksheets.output_spreadsheet['1'], "Credit")
+    cashless_column = helpers.term_index_from_tuple(worksheets.output_spreadsheet['1'], "Cashless (mobile)")
 
     #Checks if any necessary column isn't here and throws an error
     helpers.error_check([
@@ -71,7 +45,7 @@ def main():
         return(input_tuple[store_number_column][13:], row)
 
     #The dictionaries to work with
-    store_number_rows = helpers.create_rows_dictionary(output_spreadsheet, format_output_dictionary, 2)
+    store_number_rows = helpers.create_rows_dictionary(worksheets.output_spreadsheet, format_output_dictionary, 2)
     """
     store_number_rows = {
         '101': 2, 
@@ -82,7 +56,7 @@ def main():
         ...    
     }
     """
-    store_payment_outputs = helpers.create_rows_dictionary(input_spreadsheet, format_input_dictionary)
+    store_payment_outputs = helpers.create_rows_dictionary(worksheets.input_spreadsheet, format_input_dictionary)
     """
     store_payment_outputs = {
         '101': {
@@ -129,17 +103,16 @@ def main():
             store_row = str(store_number_rows[store_num])
             
             payment_info = store_payment_outputs[store_num]
-            helpers.manipulate_row(output_spreadsheet, update_payments, store_row)
+            helpers.manipulate_row(worksheets.output_spreadsheet, update_payments, store_row)
         else:
             new_store_payment_outputs[store_num] = store_payment_outputs[store_num]
     #For stores that need to be inserted on the output sheet
     for store_num in new_store_payment_outputs:
         payment_info = store_payment_outputs[store_num]
-        store_row = helpers.insert_row(output_spreadsheet, "A", int(store_num),lambda x: int(x[13:]) ,2)
-        helpers.manipulate_row(output_spreadsheet, update_payments, store_row)
-    #Save your progress!
-    wb_input.save(input_spreadsheet_path)
-    wb_output.save(output_spreadsheet_path)
+        store_row = helpers.insert_row(worksheets.output_spreadsheet, "A", int(store_num),lambda x: int(x[13:]) ,2)
+        helpers.manipulate_row(worksheets.output_spreadsheet, update_payments, store_row)
+
+    worksheets.save_work()
 
 if __name__ == "__main__":
     main()

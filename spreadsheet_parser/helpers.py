@@ -1,6 +1,9 @@
 import sys
 from openpyxl import load_workbook
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
 ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
 
 
 """ 
@@ -12,17 +15,17 @@ requires:
 Iterates row by row until it doesn't find a value. Creates dictionary
 with the cell value as the key and the row as the value
 """
-def create_column_dictionary(spreadsheet, name, starting_row = 2):
-    output = {}
-    column = letter_column_from_tuple(spreadsheet['1'], name)
-    counter = starting_row
-    cell_name = column + str(counter)
-    while spreadsheet[cell_name].value != None:
-        store_num_string = spreadsheet[cell_name].value
-        output[store_num_string[13:]] = counter
-        counter += 1
-        cell_name = column + str(counter)
-    return output
+def create_column_dictionary(spreadsheet, callback, starting_column = 1):
+    return_dictionary = {}
+    current_column = starting_column
+
+    end_of_columns = end_of_spreadsheet(spreadsheet[ALPHA[current_column]])
+    while not end_of_columns:
+        kv_tuple = callback(create_value_tuple(spreadsheet[ALPHA[current_column]]), return_dictionary, current_column)
+        return_dictionary[kv_tuple[0]] = kv_tuple[1]
+        current_column += 1
+        end_of_columns = current_column > 25 or end_of_spreadsheet(spreadsheet[ALPHA[current_column]])
+    return return_dictionary
 
 def create_rows_dictionary(spreadsheet, callback, starting_row = 2):
     return_dictionary = {}
@@ -152,3 +155,25 @@ def set_new_value(check_value, new_value):
         return new_value
     else:
         return check_value
+
+
+
+class Worksheets():
+    Tk().withdraw()
+    input_spreadsheet_path = askopenfilename()
+    output_spreadsheet_path = askopenfilename()
+    
+    error_check([
+        (input_spreadsheet_path,"Input spreadsheet wasn't selected!", lambda x: x == ""),
+        (output_spreadsheet_path,"Output spreadsheet wasn't selected!", lambda x: x == "")
+    ]) 
+    
+    wb_input = load_workbook(input_spreadsheet_path)
+    input_spreadsheet = wb_input.active
+    wb_output = load_workbook(output_spreadsheet_path)
+    output_spreadsheet = wb_output.active
+
+    def save_work(self):
+        #Save your progress!
+        self.wb_input.save(self.input_spreadsheet_path)
+        self.wb_output.save(self.output_spreadsheet_path)
