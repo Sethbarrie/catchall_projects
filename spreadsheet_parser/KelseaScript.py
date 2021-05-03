@@ -5,14 +5,23 @@ import helpers
 
 def main():
 
-    Tk().withdraw()
-    input_spreadsheet_path = askopenfilename()
-    output_spreadsheet_path = askopenfilename()
+    # Tk().withdraw()
+    # input_spreadsheet_path = askopenfilename()
+    # output_spreadsheet_path = askopenfilename()
 
-    helpers.error_check([
-        (input_spreadsheet_path,"Input spreadsheet wasn't selected!"),
-        (output_spreadsheet_path,"Output spreadsheet wasn't selected!")
-    ])
+    # helpers.error_check([
+    #     (input_spreadsheet_path,"Input spreadsheet wasn't selected!"),
+    #     (output_spreadsheet_path,"Output spreadsheet wasn't selected!")
+    # ])
+
+    # wb_input = load_workbook(input_spreadsheet_path)
+    # input_spreadsheet = wb_input.active
+
+    # wb_output = load_workbook(output_spreadsheet_path)
+    # output_spreadsheet = wb_output.active
+
+    input_spreadsheet_path = "./xlsx_files/copy/input.xlsx"
+    output_spreadsheet_path = "./xlsx_files/copy/output_empty.xlsx"
 
     wb_input = load_workbook(input_spreadsheet_path)
     input_spreadsheet = wb_input.active
@@ -76,6 +85,18 @@ def main():
             payment_info,
             int(store_num)
         )
+    def total_function(spreadsheet, row):
+        print("In total function")
+        for cell in spreadsheet[row]:
+            print(cell.value)
+        val1 = int(spreadsheet["B" + str(row)].value)
+        val2 = int(spreadsheet["C" + str(row)].value)
+        val3 = int(spreadsheet["D" + str(row)].value)
+        new_total = 0 if spreadsheet["E" + str(row)].value is None else int(spreadsheet["E" + str(row)].value)
+        spreadsheet["E" + str(row)] = new_total + (val1 + val2 + val3)
+        spreadsheet["F" + str(row)] = (int(spreadsheet["E" + str(row)].value)/ 2)
+
+    helpers.enumerate_rows(output_spreadsheet, total_function, 2)
     wb_input.save(input_spreadsheet_path)
     wb_output.save(output_spreadsheet_path)
     

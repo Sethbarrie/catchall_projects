@@ -1,6 +1,6 @@
 import sys
 from openpyxl import load_workbook
-
+ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 def populate_store_numbers(spreadsheet, starting_row = 2):
     output = {}
@@ -111,3 +111,36 @@ def error_check(array):
         if not error_container[0]:
             print(error_container[1])
             sys.exit(1)
+
+
+def manipulate_rows_by_column(spreadsheet, callback, column, starting_row = 1):
+    current_row_number = starting_row
+    current_cell = spreadsheet[column + str(current_row_number)]
+    while not current_cell:
+        spreadsheet[column + str(current_row_number)] = callback(current_cell)
+        current_row_number += 1
+        current_row_tuple = spreadsheet[column + str(current_row_number)]
+
+def manipulate_columns_by_row(spreadsheet, callback, row, starting_column = "A"):
+    current_column_letter = starting_column
+    current_cell = spreadsheet[current_column_letter + str(row)]
+    while not current_cell:
+        spreadsheet[current_column_letter + str(row)] = callback(current_cell)
+        if current_column_letter == "Z":
+            current_cell = false
+        else:
+            current_column_letter = ALPHA[(ALPHA.index(current_column_letter) + 1)]
+            current_row_tuple = spreadsheet[current_column_letter + str(row)]
+
+def enumerate_rows(spreadsheet, callback, starting_row = 1):
+    current_row_number = starting_row
+    end_of_rows = end_of_spreadsheet(spreadsheet[current_row_number])
+    while not end_of_rows:
+        #This is a function that will enumerate one row and manipulate values that way
+        callback(spreadsheet, current_row_number)
+        current_row_number += 1
+        end_of_rows = end_of_spreadsheet(spreadsheet[current_row_number])
+    
+
+def end_of_spreadsheet(row_tuple):
+    return all(map(lambda x: x.value is None, row_tuple))
